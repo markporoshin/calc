@@ -8,7 +8,7 @@
 
 
 void printLex(lexeme * l) {
-    char name_op[19][10] = {"~","+", "-", "*", "/", "^", "(", ")", "sin", "cos", "ln", "tg", "ctg", "arcsin", "arccos", "arctg", "floor", "ceil", "sqrt"};
+    char name_op[NUM_OF_OP][10] = {"~", "+", "-", "*", "/", "^", "(", ")", "sin", "cos", "ln", "tg", "ctg", "arcsin", "arccos", "arctg", "floor", "ceil", "sqrt", "="};
     switch (l->type) {
         case DIGIT:
             printf("%lf", l->value.digit);
@@ -16,11 +16,14 @@ void printLex(lexeme * l) {
         case OPERATION:
             printf("%s", name_op[l->value.action]);
             break;
+        case VARIABLE:
+            printf("(var)%s", l->value.var->name);
+            break;
     }
 }
 
 int isoper(int c){
-    if (c == '+' || c == '-' || c == '^' || c == '*' || c == '/' || c == '(' || c == ')')
+    if (c == '+' || c == '-' || c == '^' || c == '*' || c == '/' || c == '(' || c == ')' || c == '=')
         return 1;
     return 0;
 }
@@ -29,7 +32,7 @@ void parser(list *L, list *vars)
 {
     variable *var;
     list * vars1;
-    char name[11][10] = {"sin", "cos", "ln", "tg", "ctg", "arcsin", "arccos", "arctg", "floor", "ceil", "sqrt"};
+    char name[NUM_OF_FUNC][10] = {"sin", "cos", "ln", "tg", "ctg", "arcsin", "arccos", "arctg", "floor", "ceil", "sqrt"};
     int pow, size = 0, i = 0, j = 0, flag;
     char c, *buf;
     double digit;
@@ -88,6 +91,9 @@ void parser(list *L, list *vars)
                     case ')':
                         l->value.action = CBKT;
                         break;
+                    case '=':
+                        l->value.action = EQUATE;
+                        break;
                 }
                 //printLex(l);
                 push(&L, l);
@@ -95,7 +101,7 @@ void parser(list *L, list *vars)
             } else {
                 size = 1;
                 buf = malloc(sizeof(char) * size);
-                while (!isdigit(c) && !isoper(c)) {
+                while (!isdigit(c) && !isoper(c) && c != ' ' && c != '\n' && c != '\0') {
                     if(realloc(buf, size * sizeof(char)) == NULL) {
                         printf("Error: memory error");
                         exit(1);
@@ -105,7 +111,7 @@ void parser(list *L, list *vars)
                     size++;
                 }
                 flag = 0;
-                for (i = 0; i < 11 && !flag; i++)
+                for (i = 0; i < NUM_OF_FUNC && !flag; i++)
                     if (strcmp(buf, name[i]) == 0)
                         flag = 1;
                 if (flag) {
@@ -119,9 +125,17 @@ void parser(list *L, list *vars)
                             l = malloc(sizeof(lexeme));
                             l->type = DIGIT;
                             l->value.digit = var->value;
-                            push(&L, l);
+                            flag = 1;
                         }
-
+                    }
+                    if(!flag) {
+                        var = malloc(sizeof(variable));
+                        var->name = malloc(sizeof(char) * (size-1));
+                        memcpy(var->name, buf, size-1);
+                        var->isFill = 0;
+                        l = malloc(sizeof(lexeme));
+                        l->type = VARIABLE;
+                        l->value.var = var;
                     }
                 }
                 push(&L, l);
