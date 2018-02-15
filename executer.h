@@ -5,4 +5,8 @@
 #ifndef CALC_EXECUTER_H
 #define CALC_EXECUTER_H
 
+
+#include "list.h"
+
+int interpreter(list *inf);
 #endif //CALC_EXECUTER_H

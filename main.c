@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "list.h"
 #include "variable.h"
+#include "executer.h"
+
 int main() {
     list *l = NULL;
     list *vars = NULL;
@@ -9,6 +11,8 @@ int main() {
     variable pi = {"pi", 1, (double)3.1415926535897932384626433832795};
     push(&vars, &e);
     push(&vars, &pi);
-    parser(l, vars);
+    parser(&l, &vars);
+    printf("\n");
+    interpreter(l);
     return 0;
 }

@@ -7,11 +7,14 @@
 #include "variable.h"
 
 
+
+int prior[] = {6, 1, 1, 2, 2, 3, 10, -10, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0};
+
 void printLex(lexeme * l) {
     char name_op[NUM_OF_OP][10] = {"~", "+", "-", "*", "/", "^", "(", ")", "sin", "cos", "ln", "tg", "ctg", "arcsin", "arccos", "arctg", "floor", "ceil", "sqrt", "="};
     switch (l->type) {
         case DIGIT:
-            printf("%lf", l->value.digit);
+            printf("%1.0lf", l->value.digit);
             break;
         case OPERATION:
             printf("%s", name_op[l->value.action]);
@@ -28,7 +31,8 @@ int isoper(int c){
     return 0;
 }
 
-void parser(list *L, list *vars)
+
+void parser(list **L, list **vars)
 {
     variable *var;
     list * vars1;
@@ -59,7 +63,7 @@ void parser(list *L, list *vars)
                 }
                 l->value.digit = digit;
                 //printLex(l);
-                push(&L, l);
+                push(L, l);
             } else if(isoper(c)) {
                 l->type = OPERATION;
                 switch (c) {
@@ -67,14 +71,19 @@ void parser(list *L, list *vars)
                         l->value.action = PLUS;
                         break;
                     case '-':
-                         if (L != NULL) {
-                             getEl(L, 0, (void **)&buf_l);
-                             if (buf_l->type == DIGIT)
-                                 l->value.action = MINUS;
-                             else
-                                 l->value.action = U_MINUS;
-                         } else
-                              l->value.action = U_MINUS;
+                        if (*L != NULL) {
+                            //printList(*L, printLex);
+                            //printf("\n");
+                            //fflush(stdout);
+                            getEl(*L, 0, (void **)&buf_l);
+                            if (buf_l->type== DIGIT || (buf_l->type == OPERATION && buf_l->value.action == CBKT) )
+                                l->value.action = MINUS;
+                            else if (buf_l->type == OPERATION && (buf_l->value.action >= SIN))
+                                l->value.action = MINUS;
+                            else
+                                l->value.action = U_MINUS;
+                        } else
+                            l->value.action = U_MINUS;
                         break;
                     case '*':
                         l->value.action = MULTI;
@@ -96,7 +105,7 @@ void parser(list *L, list *vars)
                         break;
                 }
                 //printLex(l);
-                push(&L, l);
+                push(L, l);
                 scanf("%c", &c);
             } else {
                 size = 1;
@@ -118,7 +127,7 @@ void parser(list *L, list *vars)
                     l->type = OPERATION;
                     l->value.action = i - 1 + SIN;
                 } else {
-                    vars1 = vars;
+                    vars1 = *vars;
                     for (;vars1 != NULL; vars1 = vars1->next) {
                         var = (variable *)vars1->data;
                         if (strcmp(buf, var->name) == 0) {
@@ -138,12 +147,12 @@ void parser(list *L, list *vars)
                         l->value.var = var;
                     }
                 }
-                push(&L, l);
+                push(L, l);
                 free(buf);
             }
             //printf("%c", c);
         } else
             scanf("%c", &c);
     } while(c != '\n' && c != '\0');
-    printReList(L, (void *)printLex);
+    printReList(*L, (void *)printLex);
 }

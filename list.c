@@ -88,6 +88,11 @@ void * popBack(list **L)
 void  getEl(list * L, int number, void **data)
 {
     list *L1 = L;
+    if(L1 == NULL) {
+        *data = NULL;
+        return;
+    }
+
     for (; L1 ->next != NULL && number > 0; L1 = L1 -> next, number--);
     *data = L1->data;
 }
