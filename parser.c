@@ -154,5 +154,6 @@ void parser(list **L, list **vars)
         } else
             scanf("%c", &c);
     } while(c != '\n' && c != '\0');
+    fflush(stdout);
     printReList(*L, (void *)printLex);
 }
