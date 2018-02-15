@@ -8,5 +8,5 @@
 
 #include "list.h"
 
-int interpreter(list *inf);
+list * interpreter(list *inf);
 #endif //CALC_EXECUTER_H

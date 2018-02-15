@@ -7,7 +7,7 @@
 
 //int prior1[] = {6, 1, 1, 2, 2, 3, 10, -10, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0};
 
-int interpreter(list *inf) {
+list * interpreter(list *inf) {
     int bp = 0;
     list *pol = NULL;
     list *op = NULL;
@@ -44,4 +44,6 @@ int interpreter(list *inf) {
     while (op != NULL)
         push(&pol, pop(&op));
     printReList(pol, printLex);
+    return pol;
 }
+
