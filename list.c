@@ -4,7 +4,7 @@
 
 #include "list.h"
 
-void pushBack(list **L, void *el)
+error pushBack(list **L, void *el)
 {
     list *L1;
     if (*L == NULL)
@@ -22,15 +22,15 @@ void pushBack(list **L, void *el)
         }
         L1 -> next = (list *) malloc(sizeof(list));
         if (L1 -> next == NULL) {
-            return;
+            return E_MEMORY;
         }
         L1 -> next -> data = el;
         L1 -> next -> next = NULL;
     }
-
+    return DEFAULT;
 }
 
-void push(list **L, void *el)
+error push(list **L, void *el)
 {
     list *L1;
     if (*L == NULL)
@@ -43,13 +43,13 @@ void push(list **L, void *el)
     {
         L1 = malloc(sizeof(list));
         if (L1 == NULL) {
-            return;
+            return E_MEMORY;
         }
         L1->data = el;
         L1->next = *L;
         *L = L1;
     }
-
+    return DEFAULT;
 }
 
 void * pop(list **L)
@@ -85,6 +85,16 @@ void * popBack(list **L)
     return data;
 }
 
+void delList(list **L)
+{
+    list *L1 = *L;
+    while (L1 != NULL)
+    {
+        free(pop(&L1));
+    }
+    *L = NULL;
+}
+
 void  getEl(list * L, int number, void **data)
 {
     list *L1 = L;
@@ -106,17 +116,53 @@ int getSize(list * L)
 
 }
 
-void printList(list *L, void (*print)(void *)) {
+void printList(list *L, void (*print)(void *, FILE *), FILE *output) {
     list *L1 = L;
     for (;L1 != NULL; L1 = L1->next) {
-        print(L1->data);
+        print(L1->data, output);
     }
 }
 
-void printReList(list *L, void (*print)(void *)) {
-    if (L->next!=NULL)
-        printReList(L->next, print);
-    print(L->data);
+void printReList(list *L, void (*print)(void *, FILE *), FILE *output) {
+    if(L != NULL)
+    {
+        if (L->next != NULL)
+            printReList(L->next, print, output);
+        print(L->data, output);
+    }
+}
 
+void printError(error er, FILE * output)
+{
+    fprintf(output, "  ERROR: ");
+    switch(er) {
+        case E_MEMORY:
+            fprintf(output, "not enough memory\n");
+            break;
+        case E_BKT:
+            fprintf(output, "скобка error\n");
+            break;
+        case E_EXPRESSION_NOT_ENOUGH_OP:
+            fprintf(output, "need more operation\n");
+            break;
+        case E_EXPRESSION_NOT_ENOUGH_NUM:
+            fprintf(output, "need more digit\n");
+            break;
+        case E_NOT_VAR_BEFORE_EQUATE:
+            fprintf(output, "expression error (not a variable before equate)\n");
+            break;
+        case E_DIVIDE_BY_ZERO:
+            fprintf(output, "division by zero\n");
+            break;
+        case E_NOT_INIT_VAR:
+            fprintf(output, "variable is not initialized\n");
+            break;
+        case E_FORBADE_SYM:
+            fprintf(output, "this symbols is not allow\n");
+            break;
+        default:
+            fprintf(output, "error\n");
+            break;
+    }
 }
 

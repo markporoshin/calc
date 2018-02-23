@@ -31,6 +31,6 @@ typedef struct {
     int bp;
 } lexeme;
 
-void printLex(lexeme * l);
+void printLex(lexeme *l, FILE *output);
 
 #endif //CALC_PARSER_H
